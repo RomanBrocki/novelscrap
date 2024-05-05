@@ -1,0 +1,29 @@
+def copiarcapitulos(site_inicio, site_final):
+    '''copia do site inicial até o anterior ao final'''    
+    from selenium import webdriver
+    import time
+    from docx import Document
+    from selenium.webdriver.common.by import By
+    navegador = webdriver.Chrome()  
+    while site_inicio != site_final:
+        navegador.get(site_inicio)
+        titulo = navegador.find_element(By.CLASS_NAME, 'chr-text')
+        conteudo = navegador.find_element(By.ID, 'chr-content')
+        documento = Document("Novel.docx")
+        pattern = ['New n𝙤vel chapters are published on', 'Updat𝒆d fr𝒐m nov𝒆lb(i)n.c(o)m', 
+                   'Visit no(v)eLb(i)n.𝘤𝑜𝓂 for the best novel reading experience', 'Updated from nov𝒆lbIn.(c)om', 
+                   'Read lat𝙚st chapters at nov(𝒆)lbin.com Only','nove(l)bi(n.)com']
+        replacement = ""
+        capitulo = conteudo.text
+        for elemento in pattern:
+            conteudo_tratado = capitulo.replace(elemento, replacement)
+            capitulo = conteudo_tratado
+        paragrafo1 = documento.add_paragraph(titulo.text)
+        paragrafo2 = documento.add_paragraph(conteudo_tratado)
+        documento.add_page_break()
+        documento.save("Novel.docx")
+        links = navegador.find_elements(By.TAG_NAME, 'a')
+        listalinks = []
+        for lnk in links:
+            listalinks.append(lnk.get_attribute('href'))
+        site_inicio = listalinks[-8]
